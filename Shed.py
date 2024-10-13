@@ -8,7 +8,7 @@ from Show import Display
 from StoreComm import StoreComm 
 from WPackage import WPackage, Msg, HrBuilder as HB, DyBuilder as DB
 from datetime import datetime, timezone, timedelta
-#import time
+import time
 import os
 from tkinter import *
 
@@ -51,6 +51,14 @@ def roofIncoming(validHdrs):
     global hrNext, dtLastRoof, bAlarm
     if g.roofCSVReceived:
         g.roofCSVReceived = False  ## switch off flag
+        currFolder = g.gardenPath + "csv/"
+        fName = currFolder + "data.csv"
+        if os.path.exists(fName):
+            f = open(fName, 'a')
+        else:
+            f = open(fName, 'w')
+        f.write( time.time() + "," + csv + "\n")
+        f.close()
         dtLastRoof = datetime.now(timezone.utc)
         bAlarm = True
         #print(g.icBuffer)
@@ -74,14 +82,6 @@ def roofIncoming(validHdrs):
         if Cruncher.validate(g.msgBuffer, sc, 'M',  True):
             wp = saveIncoming(g.msgBuffer)
 
-            currFolder = g.gardenPath + "csv/"
-            fName = currFolder + "data.csv"
-            if os.path.exists( fName ):
-                f = open( fName, 'a' )
-            else:
-                f = open( fName, 'w' )
-            f.write( time.time() + "," + g.msgBuffer + "\n" )
-            f.close()
             if wp is not None:
                 if isinstance(wp, Msg):
                     g.msgs.insert(0, wp)
